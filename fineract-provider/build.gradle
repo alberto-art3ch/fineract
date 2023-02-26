@@ -28,6 +28,13 @@ apply plugin: 'com.google.cloud.tools.jib'
 apply plugin: 'org.springframework.boot'
 apply plugin: 'se.thinkcode.cucumber-runner'
 
+repositories {
+    maven { url 'https://repo1.maven.org/maven2' }
+    maven { url "https://nexus.pentaho.org/content/groups/omni/" }
+    maven { url 'https://repo.orl.eng.hitachivantara.com/artifactory/pnt-mvn/' }
+    maven { url 'https://mifos.jfrog.io/artifactory/libs-snapshot-local' }
+}
+
 check.dependsOn('cucumber')
 
 compileJava.doLast {
