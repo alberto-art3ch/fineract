@@ -27,6 +27,7 @@ import org.apache.fineract.organisation.monetary.data.CurrencyData;
 public class IndividualCollectionSheetLoanFlatData {
 
     private final String clientName;
+    private final String clientMobileNo;
     private final Long clientId;
     private final Long loanId;
     private final String accountId;
@@ -43,13 +44,14 @@ public class IndividualCollectionSheetLoanFlatData {
     private BigDecimal feeDue = BigDecimal.ZERO;
     private BigDecimal feePaid = BigDecimal.ZERO;
 
-    public IndividualCollectionSheetLoanFlatData(final String clientName, final Long clientId, final Long loanId, final String accountId,
+    public IndividualCollectionSheetLoanFlatData(final String clientName, final Long clientId, final String clientMobileNo, final Long loanId, final String accountId,
             final Integer accountStatusId, final String productShortName, final Long productId, final CurrencyData currency,
             final BigDecimal disbursementAmount, final BigDecimal principalDue, final BigDecimal principalPaid,
             final BigDecimal interestDue, final BigDecimal interestPaid, final BigDecimal chargesDue, final BigDecimal feeDue,
             final BigDecimal feePaid) {
         this.clientName = clientName;
         this.clientId = clientId;
+        this.clientMobileNo = clientMobileNo;
         this.loanId = loanId;
         this.accountId = accountId;
         this.accountStatusId = accountStatusId;
@@ -129,7 +131,7 @@ public class IndividualCollectionSheetLoanFlatData {
     }
 
     public IndividualClientData getClientData() {
-        return IndividualClientData.instance(this.clientId, this.clientName);
+        return IndividualClientData.instance(this.clientId, this.clientName, this.clientMobileNo);
     }
 
     public BigDecimal getFeeDue() {
@@ -139,5 +141,9 @@ public class IndividualCollectionSheetLoanFlatData {
     public BigDecimal getFeePaid() {
         return this.feePaid;
     }
+
+	public String getClientMobileNo() {
+		return clientMobileNo;
+	}
 
 }

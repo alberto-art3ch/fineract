@@ -46,6 +46,7 @@ import org.apache.fineract.infrastructure.core.data.CommandProcessingResult;
 import org.apache.fineract.infrastructure.core.serialization.ApiRequestJsonSerializationSettings;
 import org.apache.fineract.infrastructure.core.serialization.FromJsonHelper;
 import org.apache.fineract.infrastructure.core.serialization.ToApiJsonSerializer;
+import org.apache.fineract.infrastructure.core.service.CommandParameterUtil;
 import org.apache.fineract.infrastructure.security.service.PlatformSecurityContext;
 import org.apache.fineract.portfolio.collectionsheet.CollectionSheetConstants;
 import org.apache.fineract.portfolio.collectionsheet.data.IndividualCollectionSheetData;
@@ -80,7 +81,7 @@ public class CollectionSheetApiResource {
         final CommandWrapperBuilder builder = new CommandWrapperBuilder().withJson(apiRequestBodyAsJson);
         CommandProcessingResult result = null;
 
-        if (is(commandParam, "generateCollectionSheet")) {
+        if (CommandParameterUtil.is(commandParam, "generateCollectionSheet")) {
             this.context.authenticatedUser().validateHasReadPermission(CollectionSheetConstants.COLLECTIONSHEET_RESOURCE_NAME);
             final JsonElement parsedQuery = this.fromJsonHelper.parse(apiRequestBodyAsJson);
             final JsonQuery query = JsonQuery.from(apiRequestBodyAsJson, parsedQuery, this.fromJsonHelper);
@@ -88,7 +89,7 @@ public class CollectionSheetApiResource {
                     .generateIndividualCollectionSheet(query);
             final ApiRequestJsonSerializationSettings settings = this.apiRequestPrameterHelper.process(uriInfo.getQueryParameters());
             return this.toApiJsonSerializer.serialize(settings, collectionSheet);
-        } else if (is(commandParam, "saveCollectionSheet")) {
+        } else if (CommandParameterUtil.is(commandParam, "saveCollectionSheet")) {
             final CommandWrapper commandRequest = builder.saveIndividualCollectionSheet().build();
             result = this.commandsSourceWritePlatformService.logCommandSource(commandRequest);
             return this.toApiJsonSerializer.serialize(result);
@@ -96,7 +97,4 @@ public class CollectionSheetApiResource {
         return null;
     }
 
-    private boolean is(final String commandParam, final String commandValue) {
-        return StringUtils.isNotBlank(commandParam) && commandParam.trim().equalsIgnoreCase(commandValue);
-    }
 }

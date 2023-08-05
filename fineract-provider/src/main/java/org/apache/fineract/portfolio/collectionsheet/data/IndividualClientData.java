@@ -18,6 +18,7 @@
  */
 package org.apache.fineract.portfolio.collectionsheet.data;
 
+import java.util.ArrayList;
 import java.util.Collection;
 
 /**
@@ -27,23 +28,24 @@ public final class IndividualClientData {
 
     private final Long clientId;
     private final String clientName;
+    private final String clientMobileNo;
     private Collection<LoanDueData> loans;
     private Collection<SavingsDueData> savings;
 
-    public static IndividualClientData instance(final Long clientId, final String clientName) {
+    public static IndividualClientData instance(final Long clientId, final String clientName, final String clientMobileNo) {
         final Collection<LoanDueData> loans = null;
-        final Collection<SavingsDueData> savings = null;
-        return new IndividualClientData(clientId, clientName, loans, savings);
+        final Collection<SavingsDueData> savings = new ArrayList<SavingsDueData>();
+        return new IndividualClientData(clientId, clientMobileNo, clientName, loans, savings);
     }
 
     public static IndividualClientData withSavings(final IndividualClientData client, final Collection<SavingsDueData> savings) {
 
-        return new IndividualClientData(client.clientId, client.clientName, client.loans, savings);
+        return new IndividualClientData(client.clientId, client.clientMobileNo, client.clientName, client.loans, savings);
     }
 
     public static IndividualClientData withLoans(final IndividualClientData client, final Collection<LoanDueData> loans) {
 
-        return new IndividualClientData(client.clientId, client.clientName, loans, client.savings);
+        return new IndividualClientData(client.clientId, client.clientMobileNo, client.clientName, loans, client.savings);
     }
 
     /**
@@ -52,9 +54,10 @@ public final class IndividualClientData {
      * @param loans
      * @param savings
      */
-    private IndividualClientData(Long clientId, String clientName, Collection<LoanDueData> loans, Collection<SavingsDueData> savings) {
+    private IndividualClientData(Long clientId, String clientMobileNo, String clientName, Collection<LoanDueData> loans, Collection<SavingsDueData> savings) {
         this.clientId = clientId;
         this.clientName = clientName;
+        this.clientMobileNo = clientMobileNo;
         this.loans = loans;
         this.savings = savings;
     }
@@ -66,6 +69,10 @@ public final class IndividualClientData {
     public String getClientName() {
         return this.clientName;
     }
+    
+    public String getClientMobileNo() {
+        return this.clientMobileNo;
+    }
 
     public Collection<LoanDueData> getLoans() {
         return this.loans;
@@ -76,9 +83,10 @@ public final class IndividualClientData {
     }
 
     public void addLoans(LoanDueData loans) {
-        if (this.loans != null) {
-            this.loans.add(loans);
+        if (this.loans == null) {
+            this.loans = new ArrayList<LoanDueData>();
         }
+        this.loans.add(loans);
     }
 
     public Collection<SavingsDueData> getSavings() {

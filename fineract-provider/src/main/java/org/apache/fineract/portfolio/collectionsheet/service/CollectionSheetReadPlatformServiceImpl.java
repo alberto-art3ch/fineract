@@ -32,7 +32,6 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import org.apache.fineract.infrastructure.codes.service.CodeValueReadPlatformService;
 import org.apache.fineract.infrastructure.configuration.domain.ConfigurationDomainService;
 import org.apache.fineract.infrastructure.core.api.JsonQuery;
 import org.apache.fineract.infrastructure.core.data.EnumOptionData;
@@ -43,7 +42,6 @@ import org.apache.fineract.infrastructure.security.service.PlatformSecurityConte
 import org.apache.fineract.organisation.monetary.data.CurrencyData;
 import org.apache.fineract.portfolio.calendar.domain.Calendar;
 import org.apache.fineract.portfolio.calendar.domain.CalendarEntityType;
-import org.apache.fineract.portfolio.calendar.domain.CalendarInstanceRepository;
 import org.apache.fineract.portfolio.calendar.domain.CalendarRepositoryWrapper;
 import org.apache.fineract.portfolio.calendar.exception.NotValidRecurringDateException;
 import org.apache.fineract.portfolio.calendar.service.CalendarReadPlatformService;
@@ -85,11 +83,9 @@ public class CollectionSheetReadPlatformServiceImpl implements CollectionSheetRe
     private final CalendarRepositoryWrapper calendarRepositoryWrapper;
     private final AttendanceDropdownReadPlatformService attendanceDropdownReadPlatformService;
     private final MandatorySavingsCollectionsheetExtractor mandatorySavingsExtractor;
-    private final CodeValueReadPlatformService codeValueReadPlatformService;
     private final PaymentTypeReadPlatformService paymentTypeReadPlatformService;
     private final CalendarReadPlatformService calendarReadPlatformService;
     private final ConfigurationDomainService configurationDomainService;
-    private final CalendarInstanceRepository calendarInstanceRepository;
     private final DatabaseSpecificSQLGenerator sqlGenerator;
 
     public CollectionSheetReadPlatformServiceImpl(final PlatformSecurityContext context,
@@ -98,10 +94,9 @@ public class CollectionSheetReadPlatformServiceImpl implements CollectionSheetRe
             final CollectionSheetGenerateCommandFromApiJsonDeserializer collectionSheetGenerateCommandFromApiJsonDeserializer,
             final CalendarRepositoryWrapper calendarRepositoryWrapper,
             final AttendanceDropdownReadPlatformService attendanceDropdownReadPlatformService,
-            final CodeValueReadPlatformService codeValueReadPlatformService,
             final PaymentTypeReadPlatformService paymentTypeReadPlatformService,
             final CalendarReadPlatformService calendarReadPlatformService, final ConfigurationDomainService configurationDomainService,
-            final CalendarInstanceRepository calendarInstanceRepository, DatabaseSpecificSQLGenerator sqlGenerator) {
+            DatabaseSpecificSQLGenerator sqlGenerator) {
         this.context = context;
         this.centerReadPlatformService = centerReadPlatformService;
         this.namedParameterJdbcTemplate = namedParameterJdbcTemplate;
@@ -109,11 +104,9 @@ public class CollectionSheetReadPlatformServiceImpl implements CollectionSheetRe
         this.groupReadPlatformService = groupReadPlatformService;
         this.calendarRepositoryWrapper = calendarRepositoryWrapper;
         this.attendanceDropdownReadPlatformService = attendanceDropdownReadPlatformService;
-        this.codeValueReadPlatformService = codeValueReadPlatformService;
         this.paymentTypeReadPlatformService = paymentTypeReadPlatformService;
         this.calendarReadPlatformService = calendarReadPlatformService;
         this.configurationDomainService = configurationDomainService;
-        this.calendarInstanceRepository = calendarInstanceRepository;
         this.sqlGenerator = sqlGenerator;
         mandatorySavingsExtractor = new MandatorySavingsCollectionsheetExtractor(sqlGenerator);
     }
@@ -725,8 +718,8 @@ public class CollectionSheetReadPlatformServiceImpl implements CollectionSheetRe
                 DatabaseSpecificSQLGenerator sqlGenerator) {
             StringBuilder sb = new StringBuilder();
             sb.append("SELECT loandata.*, sum(lc.amount_outstanding_derived) as chargesDue ");
-            sb.append("from (SELECT cl.display_name As clientName, ");
-            sb.append("cl.id As clientId, ln.id As loanId, ln.account_no As accountId, ln.loan_status_id As accountStatusId,");
+            sb.append(" from (SELECT cl.display_name As clientName, cl.id As clientId, cl.mobile_no as clientMobileNo, ");
+            sb.append(" ln.id As loanId, ln.account_no As accountId, ln.loan_status_id As accountStatusId,");
             sb.append(" pl.short_name As productShortName, ln.product_id As productId, ");
             sb.append("ln.currency_code as currencyCode, ln.currency_digits as currencyDigits, ln.currency_multiplesof as inMultiplesOf, ");
             sb.append("rc." + sqlGenerator.escape("name")
@@ -770,6 +763,7 @@ public class CollectionSheetReadPlatformServiceImpl implements CollectionSheetRe
         @Override
         public IndividualCollectionSheetLoanFlatData mapRow(ResultSet rs, @SuppressWarnings("unused") int rowNum) throws SQLException {
             final String clientName = rs.getString("clientName");
+            final String clientMobileNo = rs.getString("clientMobileNo");
             final Long clientId = JdbcSupport.getLong(rs, "clientId");
             final Long loanId = JdbcSupport.getLong(rs, "loanId");
             final String accountId = rs.getString("accountId");
@@ -798,7 +792,7 @@ public class CollectionSheetReadPlatformServiceImpl implements CollectionSheetRe
             final BigDecimal feeDue = rs.getBigDecimal("feeDue");
             final BigDecimal feePaid = rs.getBigDecimal("feePaid");
 
-            return new IndividualCollectionSheetLoanFlatData(clientName, clientId, loanId, accountId, accountStatusId, productShortName,
+            return new IndividualCollectionSheetLoanFlatData(clientName, clientId, clientMobileNo, loanId, accountId, accountStatusId, productShortName,
                     productId, currencyData, disbursementAmount, principalDue, principalPaid, interestDue, interestPaid, chargesDue, feeDue,
                     feePaid);
         }
@@ -817,7 +811,8 @@ public class CollectionSheetReadPlatformServiceImpl implements CollectionSheetRe
 
             final StringBuilder sb = new StringBuilder(400);
             sb.append(
-                    "SELECT (CASE WHEN sa.deposit_type_enum=100 THEN 'Saving Deposit' ELSE (CASE WHEN sa.deposit_type_enum=300 THEN 'Recurring Deposit' ELSE 'Current Deposit' END) END) as depositAccountType, cl.display_name As clientName, cl.id As clientId, ");
+                    "SELECT (CASE WHEN sa.deposit_type_enum=100 THEN 'Saving Deposit' ELSE (CASE WHEN sa.deposit_type_enum=300 THEN 'Recurring Deposit' ELSE 'Current Deposit' END) END) as depositAccountType, ");
+            sb.append("cl.display_name As clientName, cl.id As clientId, cl.mobile_no as clientMobileNo, ");
             sb.append("sa.id As savingsId, sa.account_no As accountId, sa.status_enum As accountStatusId, ");
             sb.append("sp.short_name As productShortName, sp.id As productId, ");
             sb.append("sa.currency_code as currencyCode, sa.currency_digits as currencyDigits, sa.currency_multiplesof as inMultiplesOf, ");
@@ -863,8 +858,8 @@ public class CollectionSheetReadPlatformServiceImpl implements CollectionSheetRe
                 final Long clientId = JdbcSupport.getLong(rs, "clientId");
                 if (previousClientId == null || clientId.compareTo(previousClientId) != 0) {
                     final String clientName = rs.getString("clientName");
-                    client = IndividualClientData.instance(clientId, clientName);
-                    client = IndividualClientData.withSavings(client, new ArrayList<SavingsDueData>());
+                    final String clientMobileNo = rs.getString("clientMobileNo");
+                    client = IndividualClientData.instance(clientId, clientName, clientMobileNo);
                     clientData.add(client);
                     previousClientId = clientId;
                 }
@@ -890,10 +885,8 @@ public class CollectionSheetReadPlatformServiceImpl implements CollectionSheetRe
                         return;
                     }
                     clientSavingsData = clientDatas.get(index);
-                    clientSavingsData.setLoans(new ArrayList<LoanDueData>());
                 } else {
                     clientSavingsData = clientData;
-                    clientSavingsData.setLoans(new ArrayList<LoanDueData>());
                     clientDatas.add(clientSavingsData);
                 }
             }

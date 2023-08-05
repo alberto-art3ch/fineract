@@ -64,8 +64,8 @@ public class CollectionSheetConfiguration {
             CalendarInstanceRepository calendarInstanceRepository, DatabaseSpecificSQLGenerator sqlGenerator) {
         return new CollectionSheetReadPlatformServiceImpl(context, namedParameterJdbcTemplate, centerReadPlatformService,
                 groupReadPlatformService, collectionSheetGenerateCommandFromApiJsonDeserializer, calendarRepositoryWrapper,
-                attendanceDropdownReadPlatformService, codeValueReadPlatformService, paymentTypeReadPlatformService,
-                calendarReadPlatformService, configurationDomainService, calendarInstanceRepository, sqlGenerator);
+                attendanceDropdownReadPlatformService, paymentTypeReadPlatformService,
+                calendarReadPlatformService, configurationDomainService, sqlGenerator);
     }
 
     @Bean
