@@ -65,6 +65,11 @@ public class LoanRepositoryWrapper {
         return this.repository.findByClientIdAndGroupIdAndLoanStatus(clientId, groupId, loanStatuses);
     }
 
+    public Long findActiveLoanIdByClienId(Long clientId) {
+        final Collection<Integer> loanStatuses = new ArrayList<>(Arrays.asList(LoanStatus.ACTIVE.getValue()));
+        return repository.findActiveLoanIdByClienId(clientId, loanStatuses);
+    }
+
     public Loan saveAndFlush(final Loan loan) {
         return this.repository.saveAndFlush(loan);
     }

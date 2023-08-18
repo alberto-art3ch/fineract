@@ -792,9 +792,9 @@ public class CollectionSheetReadPlatformServiceImpl implements CollectionSheetRe
             final BigDecimal feeDue = rs.getBigDecimal("feeDue");
             final BigDecimal feePaid = rs.getBigDecimal("feePaid");
 
-            return new IndividualCollectionSheetLoanFlatData(clientName, clientId, clientMobileNo, loanId, accountId, accountStatusId, productShortName,
-                    productId, currencyData, disbursementAmount, principalDue, principalPaid, interestDue, interestPaid, chargesDue, feeDue,
-                    feePaid);
+            return new IndividualCollectionSheetLoanFlatData(clientName, clientId, clientMobileNo, loanId, accountId, accountStatusId,
+                    productShortName, productId, currencyData, disbursementAmount, principalDue, principalPaid, interestDue, interestPaid,
+                    chargesDue, feeDue, feePaid);
         }
 
     }

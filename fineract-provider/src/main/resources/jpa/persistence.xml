@@ -68,6 +68,7 @@
         <class>org.apache.fineract.useradministration.domain.Role</class>
         <class>org.apache.fineract.useradministration.domain.Permission</class>
         <class>org.apache.fineract.useradministration.domain.AppUserClientMapping</class>
+        <class>org.apache.fineract.integration.payments.domain.MPesaPayment</class>
         <!-- Fineract investor module -->
         <class>org.apache.fineract.investor.domain.ExternalAssetOwner</class>
         <class>org.apache.fineract.investor.domain.ExternalAssetOwnerTransfer</class>

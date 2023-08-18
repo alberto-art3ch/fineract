@@ -37,10 +37,12 @@ import org.apache.fineract.infrastructure.core.exception.PlatformApiDataValidati
 
 public final class DateUtils {
 
+    public static final String SIMPLE_DATETIME_FORMAT = "yyyyMMddHHmmss";
     public static final String DEFAULT_DATE_FORMAT = "yyyy-MM-dd";
     public static final String DEFAULT_DATETIME_FORMAT = DEFAULT_DATE_FORMAT + " HH:mm:ss";
     public static final DateTimeFormatter DEFAULT_DATE_FORMATTER = DateTimeFormatter.ofPattern(DEFAULT_DATE_FORMAT);
     public static final DateTimeFormatter DEFAULT_DATETIME_FORMATTER = DateTimeFormatter.ofPattern(DEFAULT_DATETIME_FORMAT);
+    public static final DateTimeFormatter SIMPLE_DATETIME_FORMATTER = DateTimeFormatter.ofPattern(SIMPLE_DATETIME_FORMAT);
 
     private DateUtils() {
 
@@ -86,6 +88,10 @@ public final class DateUtils {
     public static LocalDateTime getLocalDateTimeOfSystem(ChronoUnit truncate) {
         LocalDateTime now = LocalDateTime.now(ZoneId.systemDefault());
         return truncate == null ? now : now.truncatedTo(truncate);
+    }
+
+    public static LocalDateTime getLocalDateTimeOf(final String value, DateTimeFormatter formatter) {
+        return LocalDateTime.parse(value, formatter);
     }
 
     public static LocalDateTime getAuditLocalDateTime() {

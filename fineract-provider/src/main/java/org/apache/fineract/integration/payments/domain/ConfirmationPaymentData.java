@@ -16,33 +16,17 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.fineract.portfolio.paymenttype.domain;
+package org.apache.fineract.integration.payments.domain;
 
-import java.util.List;
+import lombok.Data;
 import lombok.RequiredArgsConstructor;
-import org.apache.fineract.portfolio.paymenttype.exception.PaymentTypeNotFoundException;
-import org.springframework.stereotype.Service;
 
-@Service
+@Data
 @RequiredArgsConstructor
-public class PaymentTypeRepositoryWrapper {
+public class ConfirmationPaymentData {
 
-    private final PaymentTypeRepository repository;
-
-    public List<PaymentType> findAll() {
-        return this.repository.findAllByOrderByPositionAsc();
-    }
-
-    public List<PaymentType> findAllWithCodeName() {
-        return this.repository.findAllByCodeNameIsNotNullOrderByPositionAsc();
-    }
-
-    public PaymentType findOneWithNotFoundDetection(final Long id) {
-        return this.repository.findById(id).orElseThrow(() -> new PaymentTypeNotFoundException(id));
-    }
-
-    public PaymentType findByName(final String name) {
-        return repository.findByName(name);
-    }
+    private final String trx_id;
+    private final String return_code;
+    private final String description;
 
 }

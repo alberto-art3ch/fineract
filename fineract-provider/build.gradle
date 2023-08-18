@@ -260,7 +260,7 @@ jib {
     }
 
     to {
-        image = 'fineract'
+        image = 'jupiter.credit.mifos'
         tags = [
             "${project.version}",
             'latest'
@@ -272,14 +272,14 @@ jib {
         mainClass = 'org.apache.fineract.ServerApplication'
         extraClasspath = ['/app/plugins/*']
         args = [
-            '-Duser.home=/tmp',
+            '-Duser.home=/root',
             '-Dfile.encoding=UTF-8',
             '-Duser.timezone=UTC',
             '-Djava.security.egd=file:/dev/./urandom'
         ]
         ports = ['8080/tcp', '8443/tcp']
         labels = [maintainer: 'Aleksandar Vidakovic <aleks@apache.org>']
-        user = 'nobody:nogroup'
+        user = 'root:root'
     }
 
     allowInsecureRegistries = true

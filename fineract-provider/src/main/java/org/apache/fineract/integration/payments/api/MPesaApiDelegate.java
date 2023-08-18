@@ -16,33 +16,22 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.fineract.portfolio.paymenttype.domain;
+package org.apache.fineract.integration.payments.api;
 
-import java.util.List;
 import lombok.RequiredArgsConstructor;
-import org.apache.fineract.portfolio.paymenttype.exception.PaymentTypeNotFoundException;
-import org.springframework.stereotype.Service;
+import org.apache.fineract.integration.payments.domain.ConfirmationPaymentData;
+import org.apache.fineract.integration.payments.domain.ConfirmationPaymentRequest;
+import org.apache.fineract.integration.payments.service.MPesaPaymentsService;
+import org.springframework.stereotype.Component;
 
-@Service
+@Component
 @RequiredArgsConstructor
-public class PaymentTypeRepositoryWrapper {
+public class MPesaApiDelegate implements MPesaApi {
 
-    private final PaymentTypeRepository repository;
+    private final MPesaPaymentsService mPesaPaymentsService;
 
-    public List<PaymentType> findAll() {
-        return this.repository.findAllByOrderByPositionAsc();
+    @Override
+    public ConfirmationPaymentData paymentConfirmation(ConfirmationPaymentRequest request) {
+        return mPesaPaymentsService.paymentConfirmation(request);
     }
-
-    public List<PaymentType> findAllWithCodeName() {
-        return this.repository.findAllByCodeNameIsNotNullOrderByPositionAsc();
-    }
-
-    public PaymentType findOneWithNotFoundDetection(final Long id) {
-        return this.repository.findById(id).orElseThrow(() -> new PaymentTypeNotFoundException(id));
-    }
-
-    public PaymentType findByName(final String name) {
-        return repository.findByName(name);
-    }
-
 }

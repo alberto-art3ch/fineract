@@ -76,6 +76,8 @@ public class FineractProperties {
 
     private FineractModulesProperties module;
 
+    private FineractMpesaProperties mpesa;
+
     @Getter
     @Setter
     public static class FineractTenantProperties {
@@ -530,4 +532,14 @@ public class FineractProperties {
     public static class FineractInvestorModuleProperties extends AbstractFineractModuleProperties {
 
     }
+
+    @Getter
+    @Setter
+    public static class FineractMpesaProperties {
+
+        private boolean enabled;
+        private String paymentType;
+
+    }
+
 }

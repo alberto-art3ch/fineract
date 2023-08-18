@@ -16,33 +16,24 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.fineract.portfolio.paymenttype.domain;
+package org.apache.fineract.portfolio.loanaccount.data;
 
-import java.util.List;
+import java.math.BigDecimal;
+import lombok.Data;
 import lombok.RequiredArgsConstructor;
-import org.apache.fineract.portfolio.paymenttype.exception.PaymentTypeNotFoundException;
-import org.springframework.stereotype.Service;
+import org.apache.fineract.infrastructure.core.domain.ExternalId;
 
-@Service
+@Data
 @RequiredArgsConstructor
-public class PaymentTypeRepositoryWrapper {
+public class LoanTransactionRepaymentData {
 
-    private final PaymentTypeRepository repository;
-
-    public List<PaymentType> findAll() {
-        return this.repository.findAllByOrderByPositionAsc();
-    }
-
-    public List<PaymentType> findAllWithCodeName() {
-        return this.repository.findAllByCodeNameIsNotNullOrderByPositionAsc();
-    }
-
-    public PaymentType findOneWithNotFoundDetection(final Long id) {
-        return this.repository.findById(id).orElseThrow(() -> new PaymentTypeNotFoundException(id));
-    }
-
-    public PaymentType findByName(final String name) {
-        return repository.findByName(name);
-    }
+    private final String transactionDate;
+    private final BigDecimal transactionAmount;
+    private final ExternalId externalId;
+    private final String routingCode;
+    private final Long paymentTypeId;
+    private final String note;
+    private final String dateFormat;
+    private final String locale;
 
 }

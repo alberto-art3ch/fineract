@@ -21,6 +21,8 @@ package org.apache.fineract.infrastructure.report.service;
 import static org.apache.fineract.infrastructure.core.domain.FineractPlatformTenantConnection.toJdbcUrl;
 import static org.apache.fineract.infrastructure.core.domain.FineractPlatformTenantConnection.toProtocol;
 
+import jakarta.ws.rs.core.MultivaluedMap;
+import jakarta.ws.rs.core.Response;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.sql.Driver;
@@ -34,8 +36,6 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import javax.sql.DataSource;
-import jakarta.ws.rs.core.MultivaluedMap;
-import jakarta.ws.rs.core.Response;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.fineract.infrastructure.core.api.ApiParameterHelper;
@@ -44,6 +44,7 @@ import org.apache.fineract.infrastructure.core.domain.FineractPlatformTenant;
 import org.apache.fineract.infrastructure.core.domain.FineractPlatformTenantConnection;
 import org.apache.fineract.infrastructure.core.exception.PlatformDataIntegrityException;
 import org.apache.fineract.infrastructure.core.service.ThreadLocalContextUtil;
+import org.apache.fineract.infrastructure.core.service.database.DatabasePasswordEncryptor;
 import org.apache.fineract.infrastructure.dataqueries.data.ReportExportType;
 import org.apache.fineract.infrastructure.report.annotation.ReportService;
 import org.apache.fineract.infrastructure.security.constants.TenantConstants;
@@ -90,6 +91,9 @@ public class PentahoReportingProcessServiceImpl implements ReportingProcessServi
 
     @Autowired
     ApplicationContext contextVar;
+
+    @Autowired
+    DatabasePasswordEncryptor databasePasswordEncryptor;
 
     @Autowired
     public PentahoReportingProcessServiceImpl(final PlatformSecurityContext context,
@@ -199,7 +203,7 @@ public class PentahoReportingProcessServiceImpl implements ReportingProcessServi
                         && (!paramName.equals("password") && !paramName.equals("userid"))))) {
 
                     var outPutInfo2 = "paramName:" + paramName;
-                    log.info("paramName: {}", outPutInfo2);
+                    log.debug("paramName: {}", outPutInfo2);
 
                     final var pValue = queryParams.get(paramName);
                     if (StringUtils.isBlank(pValue)) {
@@ -208,24 +212,18 @@ public class PentahoReportingProcessServiceImpl implements ReportingProcessServi
                     }
 
                     final Class<?> clazz = paramDefEntry.getValueType();
-                    var outPutInfo3 = "addParametersToReport(" + paramName + " : " + pValue + " : " + clazz.getCanonicalName() + ")";
-                    log.info("outputInfo: {}", outPutInfo3);
 
                     if (clazz.getCanonicalName().equalsIgnoreCase("java.lang.Integer")) {
                         rptParamValues.put(paramName, Integer.parseInt(pValue));
                     } else if (clazz.getCanonicalName().equalsIgnoreCase("java.lang.Long")) {
                         rptParamValues.put(paramName, Long.parseLong(pValue));
                     } else if (clazz.getCanonicalName().equalsIgnoreCase("java.sql.Date")) {
-                        log.info("ParamName: {}", paramName);
-                        log.info("ParamValue: {}", pValue.toString());
                         String myDate = pValue.toString();
                         SimpleDateFormat sdf = new SimpleDateFormat("dd MMMM yyyy", Locale.ENGLISH);
                         Date date = sdf.parse(myDate);
                         long millis = date.getTime();
                         java.sql.Date mySQLDate = new java.sql.Date(millis);
-                        log.info("FECHA: " + mySQLDate);
                         rptParamValues.put(paramName, mySQLDate);
-                        log.info("FECHA AGREDADA");
                     } else {
                         log.info("ParamName Unknown: {}", paramName);
                         log.info("ParamValue Unknown: {}", pValue.toString());
@@ -246,13 +244,13 @@ public class PentahoReportingProcessServiceImpl implements ReportingProcessServi
 
             final var userhierarchy = currentUser.getOffice().getHierarchy();
             var outPutInfo4 = "db URL:" + tenantUrl + "      userhierarchy:" + userhierarchy;
-            log.info(outPutInfo4);
+            log.debug(outPutInfo4);
 
             rptParamValues.put("userhierarchy", userhierarchy);
 
             final var userid = currentUser.getId();
             var outPutInfo5 = "db URL:" + tenantUrl + "      userid:" + userid;
-            log.info(outPutInfo5);
+            log.debug(outPutInfo5);
 
             rptParamValues.put("userid", userid);
 
@@ -266,7 +264,7 @@ public class PentahoReportingProcessServiceImpl implements ReportingProcessServi
             if (tenantConnection.getSchemaPassword().equalsIgnoreCase("") || tenantConnection.getSchemaPassword() == null) {
                 rptParamValues.put("password", environment.getProperty("FINERACT_DEFAULT_TENANTDB_PWD"));
             } else {
-                rptParamValues.put("password", tenantConnection.getSchemaPassword());
+                rptParamValues.put("password", databasePasswordEncryptor.decrypt(tenantConnection.getSchemaPassword()));
             }
 
         } catch (Throwable t) {
@@ -313,15 +311,14 @@ public class PentahoReportingProcessServiceImpl implements ReportingProcessServi
 
             Driver e = DriverManager.getDriver(getTenantUrl());
             // Printing the driver
-            log.info("Driver: " + e.getClass().getName().toString());
+            log.debug("Driver: " + e.getClass().getName().toString());
 
             connectionProvider.setDriver(e.getClass().getName().toString());
             connectionProvider.setUrl(getTenantUrl());
             connectionProvider.setProperty("user", tenantConnection.getSchemaUsername());
-            log.info("{}", tenantConnection.getSchemaUsername());
+            log.debug("{}", tenantConnection.getSchemaUsername());
 
-            connectionProvider.setProperty("password", tenantConnection.getSchemaPassword());
-            log.info("{}", tenantConnection.getSchemaPassword());
+            connectionProvider.setProperty("password", databasePasswordEncryptor.decrypt(tenantConnection.getSchemaPassword()));
             sqlReportDataFactory.setConnectionProvider(connectionProvider);
         }
     }
@@ -353,7 +350,7 @@ public class PentahoReportingProcessServiceImpl implements ReportingProcessServi
                     TenantConstants.PROPERTY_RO_SCHEMA_CONNECTION_PARAMETERS, schemaConnectionParameters);
         }
         String jdbcUrl = toJdbcUrl(protocol, schemaServer, schemaPort, schemaName, schemaConnectionParameters);
-        log.info("{}", jdbcUrl);
+        log.debug("{}", jdbcUrl);
 
         return jdbcUrl;
     }

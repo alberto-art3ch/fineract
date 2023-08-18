@@ -189,6 +189,12 @@ public final class JsonCommand {
 
     }
 
+    public static JsonCommand from(final String jsonCommand, final FromJsonHelper fromApiJsonHelper) {
+        return new JsonCommand(null, jsonCommand, null, fromApiJsonHelper, null, null, null, null, null, null, null, null, null, null, null,
+                null, null);
+
+    }
+
     public Long getOrganisationCreditBureauId() {
         return this.organisationCreditBureauId;
     }

@@ -44,9 +44,9 @@ public class IndividualCollectionSheetLoanFlatData {
     private BigDecimal feeDue = BigDecimal.ZERO;
     private BigDecimal feePaid = BigDecimal.ZERO;
 
-    public IndividualCollectionSheetLoanFlatData(final String clientName, final Long clientId, final String clientMobileNo, final Long loanId, final String accountId,
-            final Integer accountStatusId, final String productShortName, final Long productId, final CurrencyData currency,
-            final BigDecimal disbursementAmount, final BigDecimal principalDue, final BigDecimal principalPaid,
+    public IndividualCollectionSheetLoanFlatData(final String clientName, final Long clientId, final String clientMobileNo,
+            final Long loanId, final String accountId, final Integer accountStatusId, final String productShortName, final Long productId,
+            final CurrencyData currency, final BigDecimal disbursementAmount, final BigDecimal principalDue, final BigDecimal principalPaid,
             final BigDecimal interestDue, final BigDecimal interestPaid, final BigDecimal chargesDue, final BigDecimal feeDue,
             final BigDecimal feePaid) {
         this.clientName = clientName;
@@ -142,8 +142,8 @@ public class IndividualCollectionSheetLoanFlatData {
         return this.feePaid;
     }
 
-	public String getClientMobileNo() {
-		return clientMobileNo;
-	}
+    public String getClientMobileNo() {
+        return clientMobileNo;
+    }
 
 }

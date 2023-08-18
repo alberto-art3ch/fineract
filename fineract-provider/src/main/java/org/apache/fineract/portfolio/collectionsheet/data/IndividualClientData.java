@@ -54,7 +54,8 @@ public final class IndividualClientData {
      * @param loans
      * @param savings
      */
-    private IndividualClientData(Long clientId, String clientMobileNo, String clientName, Collection<LoanDueData> loans, Collection<SavingsDueData> savings) {
+    private IndividualClientData(Long clientId, String clientMobileNo, String clientName, Collection<LoanDueData> loans,
+            Collection<SavingsDueData> savings) {
         this.clientId = clientId;
         this.clientName = clientName;
         this.clientMobileNo = clientMobileNo;
@@ -69,7 +70,7 @@ public final class IndividualClientData {
     public String getClientName() {
         return this.clientName;
     }
-    
+
     public String getClientMobileNo() {
         return this.clientMobileNo;
     }
