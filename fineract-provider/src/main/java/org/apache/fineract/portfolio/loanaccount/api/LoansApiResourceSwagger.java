@@ -23,8 +23,9 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Set;
-import org.apache.fineract.infrastructure.core.data.EnumOptionData;
+
 import org.apache.fineract.portfolio.delinquency.api.DelinquencyApiResourceSwagger.GetDelinquencyRangesResponse;
+import org.apache.fineract.infrastructure.core.data.EnumOptionData;
 
 /**
  * Created by Chirag Gupta on 12/09/17.

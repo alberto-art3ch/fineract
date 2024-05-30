@@ -19,8 +19,8 @@
 package org.apache.fineract.infrastructure.event.external.service.serialization.mapper.loan;
 
 import org.apache.fineract.avro.loan.v1.DelinquencyRangeDataV1;
-import org.apache.fineract.infrastructure.event.external.service.serialization.mapper.support.AvroMapperConfig;
 import org.apache.fineract.portfolio.delinquency.data.DelinquencyRangeData;
+import org.apache.fineract.infrastructure.event.external.service.serialization.mapper.support.AvroMapperConfig;
 import org.mapstruct.Mapper;
 
 @Mapper(config = AvroMapperConfig.class)
