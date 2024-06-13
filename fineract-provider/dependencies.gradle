@@ -35,6 +35,7 @@ dependencies {
     implementation(project(path: ':fineract-document'))
     implementation(project(path: ':fineract-progressive-loan'))
     implementation(project(path: ':fineract-report'))
+    implementation(project(path: ':fineract-pentaho'))
 
     providedRuntime("org.springframework.boot:spring-boot-starter-tomcat")
 
