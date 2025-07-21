@@ -39,6 +39,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.fineract.accounting.journalentry.service.JournalEntryWritePlatformService;
 import org.apache.fineract.infrastructure.configuration.domain.ConfigurationDomainService;
 import org.apache.fineract.infrastructure.core.api.JsonCommand;
+import org.apache.fineract.infrastructure.core.config.FineractProperties;
 import org.apache.fineract.infrastructure.core.data.ApiParameterError;
 import org.apache.fineract.infrastructure.core.data.CommandProcessingResult;
 import org.apache.fineract.infrastructure.core.data.CommandProcessingResultBuilder;
@@ -182,6 +183,7 @@ public class LoanChargeWritePlatformServiceImpl implements LoanChargeWritePlatfo
     private final LoanAdjustmentService loanAdjustmentService;
     private final LoanAccountingBridgeMapper loanAccountingBridgeMapper;
     private final LoanChargeService loanChargeService;
+    private final FineractProperties fineractProperties;
 
     private static boolean isPartOfThisInstallment(LoanCharge loanCharge, LoanRepaymentScheduleInstallment e) {
         return DateUtils.isAfter(loanCharge.getDueDate(), e.getFromDate()) && !DateUtils.isAfter(loanCharge.getDueDate(), e.getDueDate());
@@ -1152,6 +1154,9 @@ public class LoanChargeWritePlatformServiceImpl implements LoanChargeWritePlatfo
             scheduleDates.remove(frequency);
         }
 
+        final String baseOverdueStartDateValue = fineractProperties.getCustom().getLoan().getOverdueStartDate();
+        final LocalDate baseOverdueStartDate = baseOverdueStartDateValue.isEmpty() ? null
+                : DateUtils.parseLocalDate(baseOverdueStartDateValue);
         LoanRepaymentScheduleInstallment installment = null;
         LocalDate lastChargeAppliedDate = dueDate;
         LocalDate recalculateFrom = DateUtils.getBusinessLocalDate();
@@ -1161,6 +1166,9 @@ public class LoanChargeWritePlatformServiceImpl implements LoanChargeWritePlatfo
             businessEventNotifierService.notifyPreBusinessEvent(new LoanApplyOverdueChargeBusinessEvent(loan));
 
             for (Map.Entry<Integer, LocalDate> entry : scheduleDates.entrySet()) {
+                if (baseOverdueStartDate != null && baseOverdueStartDate.isAfter(entry.getValue())) {
+                    continue;
+                }
 
                 final LoanCharge loanCharge = loanChargeAssembler.createNewFromJson(loan, chargeDefinition, command, entry.getValue());
 
